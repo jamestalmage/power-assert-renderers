@@ -10,10 +10,23 @@
 
 'use strict';
 
+var legacyPaths = {};
+
 module.exports = {
-    FileRenderer: require('./lib/file'),
-    AssertionRenderer: require('./lib/assertion'),
-    DiagramRenderer: require('./lib/diagram'),
-    BinaryExpressionRenderer: require('./lib/binary-expression'),
-    SuccinctRenderer: require('./lib/succinct-diagram')
+    FileRenderer: legacy('file', require('./lib/file')),
+    AssertionRenderer: legacy('assertion', require('./lib/assertion')),
+    DiagramRenderer: legacy('diagram', require('./lib/diagram')),
+    BinaryExpressionRenderer: legacy('binary-expression', require('./lib/binary-expression')),
+    SuccinctRenderer: legacy('succinct-diagram', require('./lib/succinct-diagram'))
+};
+
+function legacy(path, val) {
+    return legacyPaths['./built-in/' + path] = val;
+}
+
+module.exports.lookup = function (path) {
+    if (typeof path === 'string') {
+        return legacyPaths[path] || require(path);
+    }
+    return path;
 };
